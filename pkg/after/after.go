@@ -39,6 +39,7 @@ func Parse(args []string, maxDuration time.Duration) (time.Duration, []string) {
 // Exec executes command in `args` and returns exit code
 func Exec(args []string) (exitCode int) {
 	cmd := exec.Command("sh", "-c", strings.Join(args, " "))
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
