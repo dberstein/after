@@ -23,4 +23,4 @@ build/image: Dockerfile
 
 .PHONY: install
 install: build
-	@install -m 755 $(BUILD_BIN) $(INSTALL_PREFIX)/bin
+	@install -m 755 $(BUILD_PREFIX)/$(BUILD_BIN) $(INSTALL_PREFIX)/bin
