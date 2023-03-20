@@ -1,7 +1,7 @@
 # after
 Cronjob utility to target sub-minute times
 
-![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/dberstein/after/go.yml?branch=main)
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/dberstein/after/go.yml?branch=main) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/dberstein/after) ![GitHub](https://img.shields.io/github/license/dberstein/after) ![GitHub last commit](https://img.shields.io/github/last-commit/dberstein/after)
 
 ## Usage
 
