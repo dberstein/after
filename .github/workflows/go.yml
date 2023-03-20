@@ -27,10 +27,10 @@ jobs:
     - name: Test
       run: go test -v ./cmd
 
-    - name: Update release
-      uses: eine/tip@master
-      with:
-        tag: v0.0.1
-        rm: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        files: after
+    # - name: Update release
+    #   uses: eine/tip@master
+    #   with:
+    #     tag: v0.0.1
+    #     rm: true
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     files: after
