@@ -1,6 +1,8 @@
 # after
 Cronjob utility to target sub-minute times
 
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/dberstein/after/go.yml?branch=main)
+
 ## Usage
 
     $ crontab -l
