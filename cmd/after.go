@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/dberstein/after/pkg/after"
 	"os"
 	"time"
+
+	"github.com/dberstein/after/pkg/after"
 )
 
 var args []string
@@ -13,7 +14,7 @@ func init() {
 }
 
 func main() {
-	d, args := after.Parse(args, after.MaxDuration)
+	d, args, err := after.Parse(args, after.MaxDuration)
 	time.Sleep(d)
 	exitCode := after.Exec(args)
 	os.Exit(exitCode)
