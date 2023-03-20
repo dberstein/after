@@ -26,3 +26,11 @@ jobs:
 
     - name: Test
       run: go test -v ./cmd
+
+    - name: Update release
+      uses: eine/tip@master
+      with:
+        tag: update
+        rm: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        files: after
