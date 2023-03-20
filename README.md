@@ -40,7 +40,12 @@ Binaries are built as `./build/<os>-<arch>/after`
 
 Builds and installs `./build/<os>-<arch>/after` as `/usr/local/bin/after`
 
-    $ make build && sudo make install
+    $ sudo make install [-e INSTALL_DIR=/usr/local/bin]
+
+## Uninstall
+
+    $ sudo make uninstall [-e INSTALL_DIR=/usr/local/bin]
+
 
 ## Examples
 

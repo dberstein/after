@@ -1,15 +1,19 @@
 BUILD_BIN=after
-BUILD_PREFIX=build/$(shell uname -s)-$(shell uname -m)
-INSTALL_PREFIX=/usr/local
+BUILD_DIR=build/$(shell uname -s)-$(shell uname -m)
+INSTALL_DIR=/usr/local/bin
 
 SOURCES=go.mod $(shell find . -type f -name '*.go')
 
-#.PHONY: build
-build: $(SOURCES)
-	@go build -ldflags="-extldflags=-static" \
-		-o $(BUILD_PREFIX)/$(BUILD_BIN) \
+.PHONY: test
+test:
+	@go test -v ./cmd
+
+.PHONY: build
+build: test $(SOURCES)
+	@go build -x -ldflags="-extldflags=-static" \
+		-o $(BUILD_DIR)/$(BUILD_BIN) \
 	cmd/after.go \
-	&& strip $(BUILD_PREFIX)/$(BUILD_BIN)
+	&& strip $(BUILD_DIR)/$(BUILD_BIN)
 
 .PHONY: build/docker
 build/docker: build/image
@@ -23,4 +27,12 @@ build/image: Dockerfile
 
 .PHONY: install
 install: build
-	@install -m 755 $(BUILD_PREFIX)/$(BUILD_BIN) $(INSTALL_PREFIX)/bin
+	@install -v -m 755 $(BUILD_DIR)/$(BUILD_BIN) $(INSTALL_DIR)
+
+.PHONY: uninstall
+uninstall:
+	@rm -v $(INSTALL_DIR)/$(BUILD_BIN)
+
+.PHONY: clear
+clear:
+	@rm -rvf ./build
