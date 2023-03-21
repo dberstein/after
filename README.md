@@ -52,5 +52,5 @@ Builds and installs `./build/<os>-<arch>/after` as `/usr/bin/after`
     # Every 15m run and log twice "date" at seconds 20 and 45 of the minute
     */15 * * * * after 20s,45S date >> date1.log
 
-    # Every 15m run and log twice "date" every 5 seconds and at second 33 with 500 milliseconds
+    # Every 15m run and every 5 seconds and at second 33 with 500 milliseconds log "date"
     */15 * * * * after '*/5,33s500ms' date >> date2.log
