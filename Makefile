@@ -1,6 +1,6 @@
 BUILD_BIN=after
 BUILD_DIR=build/$(shell uname -s)-$(shell uname -m)
-INSTALL_DIR=/usr/local/bin
+INSTALL_DIR=/usr/bin
 
 SOURCES=go.mod $(shell find . -type f -name '*.go')
 

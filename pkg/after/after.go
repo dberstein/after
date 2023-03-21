@@ -2,56 +2,91 @@ package after
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 )
 
-// InitCheck does initial check of arguments
-func InitCheck(args []string) []string {
-	if len(args) < 2 {
-		ErrorExit(ErrMissingDurationCode, ErrMissingDurationMessage)
-	}
+// RepeatPrefix is prefix for repeating durations
+const RepeatPrefix = "*/"
 
-	if len(args) < 3 {
-		ErrorExit(ErrMissingCommandCode, ErrMissingCommandMessage)
-	}
+// DebugEnvironmentVariable is environmental variable to control debug output
+const DebugEnvironmentVariable = "DEBUG"
 
-	return args
-}
+// DebugDisableValue is special value to disable debug output
+const DebugDisableValue = "0"
 
-// Parse args for sleep duration considering maxDuration and returns parsed duration and remainder args
-func Parse(args []string, maxDuration time.Duration) (time.Duration, []string) {
-	d, err := time.ParseDuration(args[1])
-	if err != nil {
-		ErrorExit(ErrWrongDurationCode, err.Error())
-	}
+// MaxDuration is maximum duration allowed
+const MaxDuration = time.Minute
 
-	if d > maxDuration {
-		ErrorExit(ErrMaxDurationCode, fmt.Sprintf(ErrMaxDurationMessage, d, maxDuration))
-	}
+// MinDuration is minimum duration allowed
+const MinDuration = time.Duration(0)
 
-	return d, args[2:]
-}
+// ErrMissingDurationsMessage is error message when there are no durations
+const ErrMissingDurationsMessage = "missing valid duration(s)"
 
-// Exec executes command in `args` and returns exit code
-func Exec(args []string) (exitCode int) {
-	cmd := exec.Command("sh", "-c", strings.Join(args, " "))
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+// ErrMissingCommandMessage is error message for missing command
+const ErrMissingCommandMessage = "missing command"
 
-	if err := cmd.Start(); err != nil {
-		log.Fatalf("%v", err)
-	}
+// ErrMaxDurationMessage is error message for duration greater than MaxDuration
+const ErrMaxDurationMessage = "duration '%s' cannot be greater than '%s'"
 
-	if err := cmd.Wait(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			exitCode = exitErr.ExitCode()
+// ErrMinDurationMessage is error message for duration smaller than MinDuration
+const ErrMinDurationMessage = "duration '%s' cannot be less than '%s'"
+
+// ErrMissingDurationCode is exit code for missing duration
+const ErrMissingDurationCode = 1
+
+// ErrMissingCommandCode is exit code for missing command
+const ErrMissingCommandCode = 2
+
+// ProduceDurations produce durations from strings like "<d>", "<d>,<d>", "*/<d>" and its combinations.
+func ProduceDurations(spec string) map[time.Duration]bool {
+	durations := make(map[time.Duration]bool)
+
+	// first split by commas
+	for _, p := range strings.Split(spec, ",") {
+		// whether this is a repeating duration or not ...
+		repeatDuration := strings.HasPrefix(p, RepeatPrefix)
+		if repeatDuration {
+			p = strings.TrimPrefix(p, RepeatPrefix)
+		}
+
+		d, err := time.ParseDuration(p)
+		if err != nil {
+			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
+			if err != nil {
+				panic(err)
+			}
+			continue
+		}
+		if d < MinDuration {
+			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", fmt.Sprintf(ErrMinDurationMessage, d, MinDuration))
+			continue
+		}
+		if d > MaxDuration {
+			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", fmt.Sprintf(ErrMaxDurationMessage, d, MaxDuration))
+			continue
+		}
+
+		// if repeating duration, enable for durationDelta zero ...
+		durationDelta := MinDuration
+		if repeatDuration && d < MaxDuration-time.Nanosecond {
+			durations[durationDelta] = true
+		}
+
+		// loop until durationDelta is too big ...
+		for durationDelta < MaxDuration-time.Nanosecond-d {
+			// increase durationDelta and enable it ...
+			durationDelta += d
+			durations[durationDelta] = true
+
+			// ensure we won't repeat if we shouldn't ...
+			if !repeatDuration {
+				durationDelta += MaxDuration
+			}
 		}
 	}
 
-	return exitCode
+	return durations
 }
