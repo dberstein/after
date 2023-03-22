@@ -6,7 +6,7 @@ SOURCES=go.mod $(shell find . -type f -name '*.go')
 
 .PHONY: test
 test:
-	@go test -v ./cmd
+	@go test -v ./...
 
 .PHONY: build
 build: test $(SOURCES)
@@ -27,7 +27,7 @@ build/image: Dockerfile
 
 .PHONY: install
 install: build
-	@install -v -m 755 $(BUILD_DIR)/$(BUILD_BIN) $(INSTALL_DIR)
+	@install -v -b -m 755 $(BUILD_DIR)/$(BUILD_BIN) $(INSTALL_DIR)
 
 .PHONY: uninstall
 uninstall:

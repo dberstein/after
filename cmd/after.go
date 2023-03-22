@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/dberstein/after/pkg/after"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/dberstein/after/pkg/after"
 )
 
 func main() {
@@ -28,12 +29,12 @@ func main() {
 		os.Exit(after.ErrMissingCommandCode)
 	}
 
-	var (
-		wg        sync.WaitGroup
-		exitCodes int
-	)
+	executeDurations(produceDurations(os.Args[1]), os.Args[2:])
+}
 
-	durations := after.ProduceDurations(os.Args[1])
+// produceDurations return `map[time.Duration]bool` of durations to execute based on `spec`
+func produceDurations(spec string) (durations map[time.Duration]bool) {
+	durations = after.ProduceDurations(spec)
 	if len(durations) == 0 {
 		_, errDurations := fmt.Fprintf(os.Stderr, "ERROR: "+after.ErrMissingDurationsMessage+"\n")
 		if errDurations != nil {
@@ -42,9 +43,25 @@ func main() {
 		os.Exit(after.ErrMissingDurationCode)
 	}
 
+	return
+}
+
+// executeDurations executes `cmd_args` at each
+func executeDurations(durations map[time.Duration]bool, cmd_args []string) {
+	var (
+		wg              sync.WaitGroup
+		exitCodes, code int
+		isDebug         bool
+	)
+
 	// debug info if environment variable `after.DebugEnvironmentVariable` is non-empty nor `after.DebugDisableValue` ...
 	if debug, ok := os.LookupEnv(after.DebugEnvironmentVariable); ok && len(strings.TrimSpace(debug)) > 0 && strings.TrimSpace(debug) != after.DebugDisableValue {
-		_, err := fmt.Fprintf(os.Stderr, "%v\n: %s\n", durations, strings.Join(os.Args[2:], " "))
+		isDebug = true
+	}
+
+	if isDebug {
+		cmd := getCommand(cmd_args)
+		_, err := fmt.Fprintf(os.Stderr, "[%s]@%v\n", cmd.String(), durations)
 		if err != nil {
 			panic(err)
 		}
@@ -52,29 +69,34 @@ func main() {
 
 	// Launch in its own goroutine each duration and wait for all to finish ...
 	wg.Add(len(durations))
+
 	for d := range durations {
-		go func(d time.Duration) {
+		go func(d time.Duration, isDebug bool) {
+			defer wg.Done()
+			cmd := getCommand(cmd_args)
+
 			// sleep for requested duration before proceeding ...
 			time.Sleep(d)
-
-			// create command and wire inputs & outputs ...
-			cmd := exec.Command("sh", "-c", strings.Join(os.Args[2:], " "))
-			cmd.Stdin = os.Stdin
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
 
 			if err := cmd.Start(); err != nil {
 				log.Fatalf("%v", err)
 			}
 
+			code = 0
 			if err := cmd.Wait(); err != nil {
 				if exitErr, ok := err.(*exec.ExitError); ok {
-					exitCodes += exitErr.ExitCode()
+					code = exitErr.ExitCode()
 				}
 			}
+			exitCodes += code
 
-			defer wg.Done()
-		}(d)
+			if isDebug {
+				_, err := fmt.Fprintf(os.Stderr, "Execution [%s] (code: %d)\n", cmd.String(), code)
+				if err != nil {
+					panic(err)
+				}
+			}
+		}(d, isDebug)
 	}
 
 	// wait only if we have durations, exit with average of exit codes ...
@@ -82,4 +104,14 @@ func main() {
 		wg.Wait()
 		os.Exit(exitCodes / len(durations))
 	}
+}
+
+// getCommand returns `*exec.Cmd` for execution of command with arguments `cmd_args`
+func getCommand(cmd_args []string) *exec.Cmd {
+	// create command and wire inputs & outputs --...
+	cmd := exec.Command("sh", "-c", strings.Join(cmd_args, " "))
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd
 }

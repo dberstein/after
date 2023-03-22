@@ -48,6 +48,27 @@ Uninstalls binary of `make install`. If install used custom `INSTALL_DIR`, same 
 
     $ sudo make uninstall [-e INSTALL_DIR=/usr/bin]
 
+### Debug
+
+If environmental variable `DEBUG` has a non-empty and different from `0` value, debug information is sent to `stderr`. Information includes full command line being executed, the schedule of execution and each execution's exit code.
+
+For example compare:
+
+    $ after \*/20s date +%T
+    08:33:21
+    08:33:41
+    08:34:01
+
+With, where schedule of executions (0s, 20s, 40s) and each execution and its exit code are displayed in stderr:
+
+    DEBUG=1 after \*/20s date +%T
+    [/usr/bin/sh -c date +%T]@map[0s:true 20s:true 40s:true]
+    08:36:43
+    Execution [/usr/bin/sh -c date +%T] (code: 0)
+    08:37:03
+    Execution [/usr/bin/sh -c date +%T] (code: 0)
+    08:37:23
+    Execution [/usr/bin/sh -c date +%T] (code: 0)
 
 ## Examples
 
