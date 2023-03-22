@@ -16,14 +16,14 @@ Cronjob utility to target sub-minute times
 
 ## Standard in, out, err
 
-- `<command>` receives `stdin`, `stdout` and `stderr` from `after`. 
+- `<command [args]>` receives `stdin`, `stdout` and `stderr` from `after`.
 
 ## Exit codes
 
-Exit code will be exit code of required `<command>`, except in these cases:
+Exit code will be exit code of `<command [args]>`, in addition of these cases related to `after` operation:
 
-- `1` missing duration(s)
-- `2` missing command
+- `1` missing duration(s). No valid duration was given either first parameter missing or none of the values given is valid (comma-separated list).
+- `2` missing command. Second parameter onwards must be command to execute when duration(s) expire.
 
 ## Build
 
@@ -32,25 +32,33 @@ Exit code will be exit code of required `<command>`, except in these cases:
 - GNU make
 - Golang
 
-Binaries are built as `./build/<os>-<arch>/after`:
+Binaries are built as binary `./build/<OS>-<ARCH>/after`:
 
     $ make build
 
 ## Install
 
-Builds and installs `./build/<os>-<arch>/after` as `/usr/bin/after`
+Builds binary `./build/<OS>-<ARCH>/after` and installs it as binary `/usr/bin/after`. You can control installation directory with environmental variable or make parameter `INSTALL_DIR` wich has default value `/usr/bin`.
 
     $ sudo make install [-e INSTALL_DIR=/usr/bin]
 
 ### Uninstall
+
+Uninstalls binary of `make install`. If install used custom `INSTALL_DIR`, same value must be used for `make uninstall` to remove correct binary.
 
     $ sudo make uninstall [-e INSTALL_DIR=/usr/bin]
 
 
 ## Examples
 
-    # Every 15m run and log twice "date" at seconds 20 and 45 of the minute
+### Fixed seconds
+
+Every 15m run and log twice "date" at seconds 20 and 45 of the minute:
+
     */15 * * * * after 20s,45S date >> date1.log
 
-    # Every 15m run and every 5 seconds and at second 33 with 500 milliseconds log "date"
+### Repeating seconds
+
+Every 15m run and every 5 seconds and at second 33 with 500 milliseconds log "date". Note that `*/...` as duration for `after` must be quoted or escaped:
+
     */15 * * * * after '*/5,33s500ms' date >> date2.log
