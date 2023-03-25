@@ -87,14 +87,18 @@ For example compare:
 
 With, where schedule of executions (0s, 20s, 40s) and each execution and its exit code are displayed in stderr:
 
-    DEBUG=1 after \*/20s date +%T
-    [/usr/bin/sh -c date +%T]@map[0s:true 20s:true 40s:true]
-    08:36:43
-    Execution [/usr/bin/sh -c date +%T] (code: 0)
-    08:37:03
-    Execution [/usr/bin/sh -c date +%T] (code: 0)
-    08:37:23
-    Execution [/usr/bin/sh -c date +%T] (code: 0)
+    $ DEBUG=1 after \*/20s date +%T
+    [cmd: /bin/sh -c date +%T]
+    @map[0s:true 20s:true 40s:true]
+    >>pid: 69963 | cmd: /bin/sh -c date +%T
+    08:26:35
+    <<pid: 69963 | code: 0
+    >>pid: 69972 | cmd: /bin/sh -c date +%T
+    08:26:55
+    <<pid: 69972 | code: 0
+    >>pid: 69989 | cmd: /bin/sh -c date +%T
+    08:27:15
+    <<pid: 69989 | code: 0
 
 ## Examples
 
