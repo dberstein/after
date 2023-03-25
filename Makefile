@@ -6,7 +6,7 @@ SOURCES=go.mod $(shell find . -type f -name '*.go')
 
 .PHONY: test
 test:
-	@go test -v ./...
+	@go test -v -cover ./...
 
 .PHONY: build
 build: test $(SOURCES)

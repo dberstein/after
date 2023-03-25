@@ -2,6 +2,7 @@ package after
 
 import (
 	"fmt"
+	"github.com/dberstein/after/pkg/err"
 	"os"
 	"strings"
 	"time"
@@ -22,23 +23,25 @@ const MaxDuration = time.Minute
 // MinDuration is minimum duration allowed
 const MinDuration = time.Duration(0)
 
-// ErrMissingDurationsMessage is error message when there are no durations
-const ErrMissingDurationsMessage = "missing valid duration(s)"
+const (
+	ErrMissingDurationsCode = 1 << iota
+	ErrMissingCommandCode   = 1 << iota
+	ErrMinMaxDuration       = 1 << iota
+)
 
-// ErrMissingCommandMessage is error message for missing command
-const ErrMissingCommandMessage = "missing command"
+// ErrMissingDurations is error message when there are no durations
+var (
+	ErrMissingDurations = err.New(ErrMissingDurationsCode, "missing valid duration(s)")
+	ErrMissingCommand   = err.New(ErrMissingCommandCode, "missing command")
+)
 
-// ErrMaxDurationMessage is error message for duration greater than MaxDuration
-const ErrMaxDurationMessage = "duration '%s' cannot be greater than '%s'"
+func ErrMinDuration(spec string, got time.Duration) *err.Err {
+	return err.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' < '%s' (%s)", got, MinDuration, spec))
+}
 
-// ErrMinDurationMessage is error message for duration smaller than MinDuration
-const ErrMinDurationMessage = "duration '%s' cannot be less than '%s'"
-
-// ErrMissingDurationCode is exit code for missing duration
-const ErrMissingDurationCode = 1
-
-// ErrMissingCommandCode is exit code for missing command
-const ErrMissingCommandCode = 2
+func ErrMaxDuration(spec string, got time.Duration) *err.Err {
+	return err.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' > '%s' (%s)", got, MaxDuration, spec))
+}
 
 // ProduceDurations produce durations from strings like "<d>", "<d>,<d>", "*/<d>" and its combinations.
 func ProduceDurations(spec string) map[time.Duration]bool {
@@ -52,20 +55,20 @@ func ProduceDurations(spec string) map[time.Duration]bool {
 			p = strings.TrimPrefix(p, RepeatPrefix)
 		}
 
-		d, err := time.ParseDuration(p)
-		if err != nil {
-			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", err.Error())
-			if err != nil {
-				panic(err)
+		d, errParse := time.ParseDuration(p)
+		if errParse != nil {
+			_, errr := fmt.Fprintf(os.Stderr, "ERROR: %s\n", errParse.Error())
+			if errr != nil {
+				panic(errr)
 			}
 			continue
 		}
 		if d < MinDuration {
-			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", fmt.Sprintf(ErrMinDurationMessage, d, MinDuration))
+			ErrMinDuration(p, d).Print()
 			continue
 		}
 		if d > MaxDuration {
-			_, err = fmt.Fprintf(os.Stderr, "ERROR: %s\n", fmt.Sprintf(ErrMaxDurationMessage, d, MaxDuration))
+			ErrMaxDuration(p, d).Print()
 			continue
 		}
 
