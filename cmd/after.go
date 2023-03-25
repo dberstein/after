@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/dberstein/after/pkg/err"
 	"log"
 	"os"
 	"os/exec"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dberstein/after/pkg/after"
+	"github.com/dberstein/after/pkg/err"
 )
 
 var (
@@ -84,7 +84,7 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 
 	if isDebug {
 		cmd := getCommand(cmdArgs)
-		_, err := fmt.Fprintf(os.Stderr, "[cmd: %s]\n@%v\n", cmd.String(), durations)
+		_, err := fmt.Fprintf(os.Stderr, "#%s $ %s\n#%v\n", time.Now().Format(time.RFC3339Nano), cmd.String(), durations)
 		if err != nil {
 			panic(err)
 		}
@@ -105,7 +105,7 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 			}
 
 			if isDebug {
-				_, err := fmt.Fprintf(os.Stderr, ">>pid: %d | cmd: %s\n", cmd.Process.Pid, cmd.String())
+				_, err := fmt.Fprintf(os.Stderr, ">>%s|pid: %d|cmd: %s\n", time.Now().Format(time.RFC3339Nano), cmd.Process.Pid, cmd.String())
 				if err != nil {
 					panic(err)
 				}
@@ -117,7 +117,7 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 				}
 			}
 			if isDebug {
-				_, err := fmt.Fprintf(os.Stderr, "<<pid: %d | code: %d\n", cmd.Process.Pid, codes[len(codes)-1])
+				_, err := fmt.Fprintf(os.Stderr, "<<%s|pid: %d|code: %d\n", time.Now().Format(time.RFC3339Nano), cmd.Process.Pid, codes[len(codes)-1])
 				if err != nil {
 					panic(err)
 				}
