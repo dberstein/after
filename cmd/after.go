@@ -66,8 +66,7 @@ func getCommand(cmdArgs []string) *exec.Cmd {
 	return cmd
 }
 
-// executeDurations executes `cmd_args` at each
-
+// exitCode return average of `codes`
 func exitCode(codes []int) int {
 	sum := 0
 	for _, v := range codes {
@@ -76,6 +75,7 @@ func exitCode(codes []int) int {
 	return int(sum / len(codes))
 }
 
+// executeDurations executes `cmdArgs` at each `durations`
 func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 	var (
 		wg    sync.WaitGroup
