@@ -38,19 +38,6 @@ See [debug](#debug) for more diagnostic output, for example:
     escape'd Sat Apr 1 07:54:34 IDT 2023
     <<2023-04-01T07:54:34.635794+03:00|pid: 52798|code: 0
 
-    $ DEBUG=1 after \*/20s sh -c $(printf %q 'sleep 22 && echo "escap'\''ed: $(date)"')
-    [cmd: /bin/sh -c sh -c sleep\ 22\ \&\&\ echo\ \"escap\'ed:\ \$\(date\)\"]
-    @map[0s:true 20s:true 40s:true]
-    >>pid: 65247 | cmd: /bin/sh -c sh -c sleep\ 22\ \&\&\ echo\ \"escap\'ed:\ \$\(date\)\"
-    >>pid: 65257 | cmd: /bin/sh -c sh -c sleep\ 22\ \&\&\ echo\ \"escap\'ed:\ \$\(date\)\"
-    escap'ed: Sat Mar 25 07:51:05 IDT 2023
-    <<pid: 65247 | code: 0
-    >>pid: 65269 | cmd: /bin/sh -c sh -c sleep\ 22\ \&\&\ echo\ \"escap\'ed:\ \$\(date\)\"
-    escap'ed: Sat Mar 25 07:51:25 IDT 2023
-    <<pid: 65257 | code: 0
-    escap'ed: Sat Mar 25 07:51:45 IDT 2023
-    <<pid: 65269 | code: 0
-
 ## Standard in, out, err
 
 - `<command [args]>` receives `stdin`, `stdout` and `stderr` from `after`.
