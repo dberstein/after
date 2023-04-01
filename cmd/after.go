@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"mvdan.cc/sh/v3/syntax"
 	"os"
 	"os/exec"
 	"strings"
@@ -56,10 +57,26 @@ func getDurations(spec string) (map[time.Duration]bool, *err.Err) {
 	return durations, nil
 }
 
+// quoteArgs does shell quoting of given strings
+func quoteArgs(args []string) []string {
+	escaped := []string{}
+	for _, a := range args {
+		aa, err := syntax.Quote(a, syntax.LangBash)
+		if err != nil {
+			_, err = fmt.Fprintf(os.Stderr, "%s\n", err)
+			if err != nil {
+				panic(err)
+			}
+		}
+		escaped = append(escaped, aa)
+	}
+	return escaped
+}
+
 // getCommand returns `*exec.Cmd` for execution of command with arguments `cmd_args`
 func getCommand(cmdArgs []string) *exec.Cmd {
-	// create command and wire inputs & outputs --...
-	cmd := exec.Command("sh", "-c", strings.Join(cmdArgs, " "))
+	// create command and wire inputs & outputs ...
+	cmd := exec.Command("sh", "-c", cmdArgs[0]+" "+strings.Join(quoteArgs(cmdArgs[1:]), " "))
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

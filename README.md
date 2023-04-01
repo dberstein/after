@@ -16,16 +16,27 @@ Cronjob utility to target sub-minute times
 
 ### Quoting
 
-If command or arguments to be executed by `after` require quoting, please use `printf %q` to escape them, likeso:
+If command or arguments to be executed by `after` require quoting, please use quotes and/or escape them, like so:
 
-
-    $ after \*/5s sh -c $(printf %q 'sleep 2 && echo "escap'\''ed: $(date)"')
-    escap'ed: Sat Mar 25 07:43:25 IDT 2023
-    escap'ed: Sat Mar 25 07:43:30 IDT 2023
-    escap'ed: Sat Mar 25 07:43:35 IDT 2023
-    ...
+    $ after \*/20s sh -c "sleep 2 && echo escape\'d \$(date)"
+    escape'd Sat Apr 1 07:55:29 IDT 2023
+    escape'd Sat Apr 1 07:55:49 IDT 2023
+    escape'd Sat Apr 1 07:56:09 IDT 2023
 
 See [debug](#debug) for more diagnostic output, for example:
+
+    $ DEBUG=1 after \*/20s sh -c "sleep 2 && echo escape\'d \$(date)"
+    #2023-04-01T07:53:52.599851+03:00 $ /bin/sh -c sh -c "sleep 2 && echo escape\\'d \$(date)"
+    #map[0s:true 20s:true 40s:true]
+    >>2023-04-01T07:53:52.602151+03:00|pid: 52770|cmd: /bin/sh -c sh -c "sleep 2 && echo escape\\'d \$(date)"
+    escape'd Sat Apr 1 07:53:54 IDT 2023
+    <<2023-04-01T07:53:54.627701+03:00|pid: 52770|code: 0
+    >>2023-04-01T07:54:12.606055+03:00|pid: 52784|cmd: /bin/sh -c sh -c "sleep 2 && echo escape\\'d \$(date)"
+    escape'd Sat Apr 1 07:54:14 IDT 2023
+    <<2023-04-01T07:54:14.631721+03:00|pid: 52784|code: 0
+    >>2023-04-01T07:54:32.604656+03:00|pid: 52798|cmd: /bin/sh -c sh -c "sleep 2 && echo escape\\'d \$(date)"
+    escape'd Sat Apr 1 07:54:34 IDT 2023
+    <<2023-04-01T07:54:34.635794+03:00|pid: 52798|code: 0
 
     $ DEBUG=1 after \*/20s sh -c $(printf %q 'sleep 22 && echo "escap'\''ed: $(date)"')
     [cmd: /bin/sh -c sh -c sleep\ 22\ \&\&\ echo\ \"escap\'ed:\ \$\(date\)\"]
@@ -76,29 +87,31 @@ Uninstalls binary of `make install`. If install used custom `INSTALL_DIR`, same 
 
 ### Debug
 
-If environmental variable `DEBUG` has a non-empty and different from `0` value, debug information is sent to `stderr`. Information includes full command line being executed, the schedule of execution and each execution's exit code.
+If environmental variable `DEBUG` has a non-empty and different from `0` value, debug information is sent to `stderr`.
+
+Information includes full command line being executed, the schedule of execution and each execution's process (pid), timestamp and exit code.
 
 For example compare:
 
     $ after \*/20s date +%T
-    08:33:21
-    08:33:41
-    08:34:01
+    07:59:45
+    08:00:05
+    08:00:25
 
-With, where schedule of executions (0s, 20s, 40s) and each execution and its exit code are displayed in stderr:
+With, where schedule of executions (0s, 20s, 40s) and each execution and its exit code are displayed in STDERR:
 
     $ DEBUG=1 after \*/20s date +%T
-    [cmd: /bin/sh -c date +%T]
-    @map[0s:true 20s:true 40s:true]
-    >>pid: 69963 | cmd: /bin/sh -c date +%T
-    08:26:35
-    <<pid: 69963 | code: 0
-    >>pid: 69972 | cmd: /bin/sh -c date +%T
-    08:26:55
-    <<pid: 69972 | code: 0
-    >>pid: 69989 | cmd: /bin/sh -c date +%T
-    08:27:15
-    <<pid: 69989 | code: 0
+    #2023-04-01T07:59:45.884795+03:00 $ /bin/sh -c date +%T
+    #map[0s:true 20s:true 40s:true]
+    >>2023-04-01T07:59:45.886871+03:00|pid: 53094|cmd: /bin/sh -c date +%T
+    07:59:45
+    <<2023-04-01T07:59:45.895521+03:00|pid: 53094|code: 0
+    >>2023-04-01T08:00:05.892511+03:00|pid: 53105|cmd: /bin/sh -c date +%T
+    08:00:05
+    <<2023-04-01T08:00:05.906056+03:00|pid: 53105|code: 0
+    >>2023-04-01T08:00:25.891189+03:00|pid: 53124|cmd: /bin/sh -c date +%T
+    08:00:25
+    <<2023-04-01T08:00:25.905354+03:00|pid: 53124|code: 0
 
 ## Examples
 
