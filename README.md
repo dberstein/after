@@ -8,7 +8,7 @@ Cronjob utility to target sub-minute times
     $ crontab -l
     * * * * * after <duration(s)> <command [args]>
 
-- `<duration(s)>` must be comma-separated list of durations, as understood by <a href="https://pkg.go.dev/time#ParseDuration">Go</a>, and shorter than one minute. For durations over one minute use regular <a href="https://en.wikipedia.org/wiki/Cron#Overview">Cron</a> spec.
+- `<duration(s)>` must be comma-separated list of durations, as understood by <a href="https://pkg.go.dev/time#ParseDuration">Go</a>, at least `1ms` and shorter than one minute (`1m`). For durations over one minute use regular <a href="https://en.wikipedia.org/wiki/Cron#Overview">Cron</a> spec.
   - Durations can also be of the repeating form `*/<duration>` which will repeat every `<duration>` within the same minute. Example: `*/20s` will run on seconds `0`, `20`, and `40` of the minute.
   - Durations can be combined in a comma separated list, like: `5s,*/20s500ms,15s`
 - `<command [args]>` must be command and optional arguments to execute.

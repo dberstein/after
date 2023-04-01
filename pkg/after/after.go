@@ -21,7 +21,7 @@ const DebugDisableValue = "0"
 const MaxDuration = time.Minute
 
 // MinDuration is minimum duration allowed
-const MinDuration = time.Duration(0)
+const MinDuration = time.Millisecond
 
 const (
 	ErrMissingDurationsCode = 1 << iota
@@ -73,7 +73,7 @@ func ProduceDurations(spec string) map[time.Duration]bool {
 		}
 
 		// if repeating duration, enable for durationDelta zero ...
-		durationDelta := MinDuration
+		durationDelta := time.Duration(0)
 		if repeatDuration && d < MaxDuration-time.Nanosecond {
 			durations[durationDelta] = true
 		}
