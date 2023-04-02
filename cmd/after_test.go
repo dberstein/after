@@ -97,7 +97,9 @@ func Test_getDurations(t *testing.T) {
 		wantDurations map[time.Duration]bool
 		wantErr       *err.Err
 	}{
-		//{name: "invalid", args: args{"invalid"}, wantDurations: map[time.Duration]bool{}, wantErr: after.ErrMissingDurations},
+		//{"invalid", args{"invalid"}, map[time.Duration]bool{}, nil},
+		{"empty", args{}, nil, after.ErrMissingDurations},
+		{"single", args{"*/30s"}, map[time.Duration]bool{time.Second * 0: true, time.Second * 30: true}, nil},
 		{"invalid,1s", args{"invalid,1s"}, map[time.Duration]bool{time.Second * 1: true}, nil},
 		{"1s,invalid", args{"1s,invalid"}, map[time.Duration]bool{time.Second * 1: true}, nil},
 		{"1s", args{"1s"}, map[time.Duration]bool{time.Second * 1: true}, nil},
@@ -185,33 +187,6 @@ func Test_escapeArgs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := quoteArgs(tt.args.args); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("escapeArgs() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_getDurations1(t *testing.T) {
-	type args struct {
-		spec string
-	}
-	tests := []struct {
-		name  string
-		args  args
-		want  map[time.Duration]bool
-		want1 *err.Err
-	}{
-		{"empty", args{}, nil, after.ErrMissingDurations},
-		{"single", args{"1s"}, map[time.Duration]bool{time.Second: true}, nil},
-		{"single", args{"*/30s"}, map[time.Duration]bool{time.Second * 0: true, time.Second * 30: true}, nil},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := getDurations(tt.args.spec)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getDurations() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("getDurations() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
