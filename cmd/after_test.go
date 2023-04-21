@@ -43,7 +43,12 @@ func Test_getCommand(t *testing.T) {
 		cmdArgs []string
 	}
 
-	wantCmdDate := exec.Command("/bin/date", "+%FT%T")
+	datePath, err := exec.LookPath("date")
+	if err != nil {
+		t.Fatal("ERROR: cannot find 'date' in PATH")
+	}
+
+	wantCmdDate := exec.Command(datePath, "+%FT%T")
 	wantCmdDate.Stdin = os.Stdin
 	wantCmdDate.Stdout = os.Stdout
 	wantCmdDate.Stderr = os.Stderr
