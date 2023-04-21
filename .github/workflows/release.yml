@@ -14,5 +14,5 @@ jobs:
           goos: linux
           goarch: amd64
           #project_path: ./cmd/after.go
-          binary_name: after
-          build_command: go build cmd/after.go
+          #binary_name: after
+          build_command: go build -o after cmd/after.go
