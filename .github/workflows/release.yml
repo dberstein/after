@@ -15,4 +15,4 @@ jobs:
           goarch: amd64
           #project_path: ./cmd/after.go
           binary_name: after
-          build_command: go build -ldflags="-extldflags=-static" cmd/after.go
+          build_command: go build cmd/after.go
