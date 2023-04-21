@@ -43,7 +43,7 @@ func Test_getCommand(t *testing.T) {
 		cmdArgs []string
 	}
 
-	wantCmdDate := exec.Command("sh", "-c", "date +%FT%T")
+	wantCmdDate := exec.Command("/bin/date", "+%FT%T")
 	wantCmdDate.Stdin = os.Stdin
 	wantCmdDate.Stdout = os.Stdout
 	wantCmdDate.Stderr = os.Stderr
@@ -57,7 +57,7 @@ func Test_getCommand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getCommand(tt.args.cmdArgs); !reflect.DeepEqual(got, tt.want) {
+			if got := getCommand(tt.args.cmdArgs[0], tt.args.cmdArgs[1:]...); got.String() != tt.want.String() {
 				t.Errorf("getCommand() = %v, want %v", got, tt.want)
 			}
 		})

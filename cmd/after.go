@@ -16,6 +16,7 @@ import (
 
 var (
 	isDebug bool
+	Version string
 )
 
 func init() {
@@ -74,9 +75,9 @@ func quoteArgs(args []string) []string {
 }
 
 // getCommand returns `*exec.Cmd` for execution of command with arguments `cmd_args`
-func getCommand(cmdArgs []string) *exec.Cmd {
+func getCommand(command string, args ...string) *exec.Cmd {
 	// create command and wire inputs & outputs ...
-	cmd := exec.Command("sh", "-c", cmdArgs[0]+" "+strings.Join(quoteArgs(cmdArgs[1:]), " "))
+	cmd := exec.Command(command, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -100,7 +101,7 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 	)
 
 	if isDebug {
-		cmd := getCommand(cmdArgs)
+		cmd := getCommand(cmdArgs[0], cmdArgs[1:]...)
 		_, err := fmt.Fprintf(os.Stderr, "#%s $ %s\n#%v\n", time.Now().Format(time.RFC3339Nano), cmd.String(), durations)
 		if err != nil {
 			panic(err)
@@ -116,7 +117,7 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 			// sleep for requested duration before proceeding ...
 			time.Sleep(d)
 
-			cmd := getCommand(cmdArgs)
+			cmd := getCommand(cmdArgs[0], cmdArgs[1:]...)
 			if err := cmd.Start(); err != nil {
 				log.Fatalf("%v", err)
 			}
@@ -151,6 +152,11 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 
 func main() {
 	args := os.Args
+	if len(args) > 1 && (args[1] == "-v" || args[1] == "--version") {
+		fmt.Println(Version)
+		return
+	}
+
 	err := validateArgs(args)
 	if err != nil {
 		err.Print().Exit()

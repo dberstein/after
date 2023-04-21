@@ -62,15 +62,15 @@ Binaries are built as binary `./build/<OS>-<ARCH>/after`:
 
 ## Install
 
-Builds binary `./build/<OS>-<ARCH>/after` and installs it as binary `/usr/bin/after`. You can control installation directory with environmental variable or make parameter `INSTALL_DIR` wich has default value `/usr/bin`.
+Builds binary `./build/<OS>-<ARCH>/after` and installs it as binary `/usr[/local]/bin/after`. 
 
-    $ sudo make install [-e INSTALL_DIR=/usr/bin]
+    $ sudo make install
 
 ### Uninstall
 
-Uninstalls binary of `make install`. If install used custom `INSTALL_DIR`, same value must be used for `make uninstall` to remove correct binary.
+Uninstalls binary of `make install`.
 
-    $ sudo make uninstall [-e INSTALL_DIR=/usr/bin]
+    $ sudo make uninstall
 
 ### Debug
 
