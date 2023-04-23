@@ -2,7 +2,7 @@ package after
 
 import (
 	"fmt"
-	"github.com/dberstein/after/pkg/err"
+	afterErr "github.com/dberstein/after/pkg/err"
 	"os"
 	"strings"
 	"time"
@@ -31,16 +31,16 @@ const (
 
 // ErrMissingDurations is error message when there are no durations
 var (
-	ErrMissingDurations = err.New(ErrMissingDurationsCode, "missing valid duration(s)")
-	ErrMissingCommand   = err.New(ErrMissingCommandCode, "missing command")
+	ErrMissingDurations = afterErr.New(ErrMissingDurationsCode, "missing valid duration(s)")
+	ErrMissingCommand   = afterErr.New(ErrMissingCommandCode, "missing command")
 )
 
-func ErrMinDuration(spec string, got time.Duration) *err.Err {
-	return err.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' < '%s' (%s)", got, MinDuration, spec))
+func ErrMinDuration(spec string, got time.Duration) *afterErr.Err {
+	return afterErr.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' < '%s' (%s)", got, MinDuration, spec))
 }
 
-func ErrMaxDuration(spec string, got time.Duration) *err.Err {
-	return err.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' > '%s' (%s)", got, MaxDuration, spec))
+func ErrMaxDuration(spec string, got time.Duration) *afterErr.Err {
+	return afterErr.Convert(ErrMinMaxDuration, fmt.Errorf("duration '%s' > '%s' (%s)", got, MaxDuration, spec))
 }
 
 // ProduceDurations produce durations from strings like "<d>", "<d>,<d>", "*/<d>" and its combinations.

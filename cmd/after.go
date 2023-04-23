@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"mvdan.cc/sh/v3/syntax"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,7 +10,7 @@ import (
 	"time"
 
 	"github.com/dberstein/after/pkg/after"
-	"github.com/dberstein/after/pkg/err"
+	afterErr "github.com/dberstein/after/pkg/err"
 )
 
 var (
@@ -32,12 +31,12 @@ func initDebug() bool {
 }
 
 // validateArgs validates slice of arguments
-func validateArgs(args []string) *err.Err {
+func validateArgs(args []string) *afterErr.Err {
 	switch len(args) {
 	case 2:
-		return err.New(after.ErrMissingCommandCode, after.ErrMissingCommand.Error())
+		return afterErr.New(after.ErrMissingCommandCode, after.ErrMissingCommand.Error())
 	case 1:
-		return err.New(after.ErrMissingDurationsCode, after.ErrMissingDurations.Error())
+		return afterErr.New(after.ErrMissingDurationsCode, after.ErrMissingDurations.Error())
 	default:
 		return nil
 	}
@@ -50,28 +49,12 @@ func isDebugValue(value string) bool {
 }
 
 // getDurations returns `map[time.Duration]bool` of durations to execute based on `spec`
-func getDurations(spec string) (map[time.Duration]bool, *err.Err) {
+func getDurations(spec string) (map[time.Duration]bool, *afterErr.Err) {
 	durations := after.ProduceDurations(spec)
 	if len(durations) == 0 {
 		return nil, after.ErrMissingDurations
 	}
 	return durations, nil
-}
-
-// quoteArgs does shell quoting of given strings
-func quoteArgs(args []string) []string {
-	escaped := []string{}
-	for _, a := range args {
-		aa, err := syntax.Quote(a, syntax.LangBash)
-		if err != nil {
-			_, err = fmt.Fprintf(os.Stderr, "%s\n", err)
-			if err != nil {
-				panic(err)
-			}
-		}
-		escaped = append(escaped, aa)
-	}
-	return escaped
 }
 
 // getCommand returns `*exec.Cmd` for execution of command with arguments `cmd_args`
