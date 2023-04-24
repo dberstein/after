@@ -1,7 +1,8 @@
 package command
 
 import (
-	"log"
+	"fmt"
+	"github.com/dberstein/after/pkg/color"
 	"os"
 	"os/exec"
 )
@@ -25,7 +26,8 @@ func NewCommand(cmd string, args ...string) *Command {
 // Execute the command
 func (c *Command) Execute() {
 	if err := c.cmd.Start(); err != nil {
-		log.Fatalf("%v", err)
+		fmt.Fprintf(os.Stderr, "%sERROR%s %s%v%s\n", color.Red, color.Reset, color.Yellow, err, color.Reset)
+		os.Exit(127)
 	}
 	c.pid = c.cmd.Process.Pid
 	if err := c.cmd.Wait(); err != nil {

@@ -3,6 +3,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/dberstein/after/pkg/after/task"
+	"github.com/dberstein/after/pkg/color"
 	"math"
 	"os"
 	"strings"
@@ -35,11 +36,18 @@ func (ts *Tasks) Add(spec string) *Tasks {
 func (ts *Tasks) parseDuration(spec string) *time.Duration {
 	d, err := time.ParseDuration(spec)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintf(os.Stderr, "%s%s%s\n", color.Red, err, color.Reset)
 		return nil
 	}
 	if d < time.Duration(0) {
-		fmt.Fprintf(os.Stderr, "%s\n", "durtation cannot be less than 0s")
+		fmt.Fprintf(os.Stderr, "%s%s%s: %s%s%s\n", color.Red,
+			fmt.Sprintf("duration cannot be less than %s", time.Duration(0)),
+			color.Reset, color.Yellow, spec, color.Reset)
+		return nil
+	} else if d >= time.Minute {
+		fmt.Fprintf(os.Stderr, "%s%s%s: %s%s%s\n", color.Red,
+			fmt.Sprintf("duration cannot be greater than %s", time.Minute),
+			color.Reset, color.Yellow, spec, color.Reset)
 		return nil
 	}
 	return &d
