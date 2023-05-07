@@ -62,7 +62,12 @@ Binaries are built as binary `./build/<OS>-<ARCH>/after`:
 
 ## Install
 
-Builds binary `./build/<OS>-<ARCH>/after` and installs it as binary `/usr[/local]/bin/after`. 
+With `~/go/bin` in your `PATH` simply use:
+- `go install github.com/dberstein/after@latest`
+
+Or alternatively use make's build infrastructure:
+
+- Builds binary `./build/<OS>-<ARCH>/after` and installs it as binary `/usr[/local]/bin/after`. 
 
     $ sudo make install
 
