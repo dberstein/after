@@ -26,7 +26,7 @@ $(targets): %: test
 	go build -x \
 	-ldflags="-X main.Version=$(version) -extldflags=-static" \
 	-o 'build/$(os)/$(arch)/$(version)/$(build_bin)$(shell [ "$(os)" != "windows" ] || echo .exe)' \
-	cmd/after.go
+	.
 
 .PHONY: test
 test:

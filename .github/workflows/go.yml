@@ -21,11 +21,11 @@ jobs:
       with:
         go-version: 1.19
 
-    - name: Build
-      run: go build -v -o after ./cmd
-
     - name: Test
-      run: go test -v ./pkg/after
+      run: go test -v ./...
+
+    - name: Build
+      run: go build -v -o after .
 
     # - name: Update release
     #   uses: eine/tip@master

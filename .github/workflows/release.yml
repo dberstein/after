@@ -15,5 +15,5 @@ jobs:
           goarch: amd64
           project_path: "./cmd/after"
           binary_name: "after"
-          build_command: go build -o after cmd/after.go
+          build_command: go build -o after .
           extra_files: LICENSE README.md
