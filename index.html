@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>after | Cronjob utility to target sub-minute times</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="after" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cronjob utility to target sub-minute times" />
+<meta property="og:description" content="Cronjob utility to target sub-minute times" />
+<link rel="canonical" href="http://daniel.berste.in/after/" />
+<meta property="og:url" content="http://daniel.berste.in/after/" />
+<meta property="og:site_name" content="after" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="after" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"Cronjob utility to target sub-minute times","headline":"after","name":"after","url":"http://daniel.berste.in/after/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/after/assets/css/style.css?v=153d80ab5b03686b814716f64bb4638c10bdd85e">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/after/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+
+      <h1 id="after">after</h1>
+<p>Cronjob utility to target sub-minute times</p>
+
+<p><img src="https://img.shields.io/github/actions/workflow/status/dberstein/after/go.yml?branch=main" alt="GitHub Workflow Status (with branch)" /> <img src="https://img.shields.io/github/go-mod/go-version/dberstein/after" alt="GitHub go.mod Go version" /> <img src="https://img.shields.io/github/license/dberstein/after" alt="GitHub" /> <img src="https://img.shields.io/github/last-commit/dberstein/after" alt="GitHub last commit" /></p>
+<h2 id="repo">Repository</h2>
+<div>
+    <ul>
+        <li><a href="https://github.com/dberstein/after">Github</a></li>
+    </ul>
+</div>
+<h2 id="usage">Usage</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ crontab -l
+* * * * * after &lt;duration(s)&gt; &lt;command [args]&gt;
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;duration(s)&gt;</code> must be comma-separated list of durations, as understood by <a href="https://pkg.go.dev/time#ParseDuration">Go</a>, at least <code class="language-plaintext highlighter-rouge">1ms</code> and shorter than one minute (<code class="language-plaintext highlighter-rouge">1m</code>). For durations over one minute use regular <a href="https://en.wikipedia.org/wiki/Cron#Overview">Cron</a> spec.
+    <ul>
+      <li>Durations can also be of the repeating form <code class="language-plaintext highlighter-rouge">*/&lt;duration&gt;</code> which will repeat every <code class="language-plaintext highlighter-rouge">&lt;duration&gt;</code> within the same minute. Example: <code class="language-plaintext highlighter-rouge">*/20s</code> will run on seconds <code class="language-plaintext highlighter-rouge">0</code>, <code class="language-plaintext highlighter-rouge">20</code>, and <code class="language-plaintext highlighter-rouge">40</code> of the minute.</li>
+      <li>Durations can be combined in a comma separated list, like: <code class="language-plaintext highlighter-rouge">5s,*/20s500ms,15s</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;command [args]&gt;</code> must be command and optional arguments to execute.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">&lt;command [args]&gt;</code> is only executed once per concurrent durations, meaning <code class="language-plaintext highlighter-rouge">*/15,*/30</code> will NOT run command twice at seconds <code class="language-plaintext highlighter-rouge">0</code> and <code class="language-plaintext highlighter-rouge">30</code> although both expressions coincide in those seconds.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="quoting">Quoting</h3>
+
+<p>If command or arguments to be executed by <code class="language-plaintext highlighter-rouge">after</code> require quoting, please use quotes and/or escape them, like so:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ after \*/20s sh -c "sleep 2 &amp;&amp; echo escape\'d \$(date)"
+escape'd Sat Apr 1 07:55:29 IDT 2023
+escape'd Sat Apr 1 07:55:49 IDT 2023
+escape'd Sat Apr 1 07:56:09 IDT 2023
+</code></pre></div></div>
+
+<p>See <a href="#debug">debug</a> for more diagnostic output, for example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ DEBUG=1 after \*/20s sh -c "sleep 2 &amp;&amp; echo escape\'d \$(date)"
+#2023-04-01T07:53:52.599851+03:00 $ /bin/sh -c sh -c "sleep 2 &amp;&amp; echo escape\\'d \$(date)"
+#map[0s:true 20s:true 40s:true]
+&gt;&gt;2023-04-01T07:53:52.602151+03:00|pid: 52770|cmd: /bin/sh -c sh -c "sleep 2 &amp;&amp; echo escape\\'d \$(date)"
+escape'd Sat Apr 1 07:53:54 IDT 2023
+&lt;&lt;2023-04-01T07:53:54.627701+03:00|pid: 52770|code: 0
+&gt;&gt;2023-04-01T07:54:12.606055+03:00|pid: 52784|cmd: /bin/sh -c sh -c "sleep 2 &amp;&amp; echo escape\\'d \$(date)"
+escape'd Sat Apr 1 07:54:14 IDT 2023
+&lt;&lt;2023-04-01T07:54:14.631721+03:00|pid: 52784|code: 0
+&gt;&gt;2023-04-01T07:54:32.604656+03:00|pid: 52798|cmd: /bin/sh -c sh -c "sleep 2 &amp;&amp; echo escape\\'d \$(date)"
+escape'd Sat Apr 1 07:54:34 IDT 2023
+&lt;&lt;2023-04-01T07:54:34.635794+03:00|pid: 52798|code: 0
+</code></pre></div></div>
+
+<h2 id="standard-in-out-err">Standard in, out, err</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;command [args]&gt;</code> receives <code class="language-plaintext highlighter-rouge">stdin</code>, <code class="language-plaintext highlighter-rouge">stdout</code> and <code class="language-plaintext highlighter-rouge">stderr</code> from <code class="language-plaintext highlighter-rouge">after</code>.</li>
+</ul>
+
+<h2 id="exit-codes">Exit codes</h2>
+
+<p>Exit code will be exit code of <code class="language-plaintext highlighter-rouge">&lt;command [args]&gt;</code>, in addition of these cases related to <code class="language-plaintext highlighter-rouge">after</code> operation:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">1</code> missing duration(s). No valid duration was given either first parameter missing or none of the values given is valid (comma-separated list).</li>
+  <li><code class="language-plaintext highlighter-rouge">2</code> missing command. Second parameter onwards must be command to execute when duration(s) expire.</li>
+</ul>
+
+<h2 id="build">Build</h2>
+
+<h3 id="requirements">Requirements</h3>
+
+<ul>
+  <li>GNU make</li>
+  <li>Golang</li>
+</ul>
+
+<p>Binaries are built as binary <code class="language-plaintext highlighter-rouge">./build/&lt;OS&gt;-&lt;ARCH&gt;/after</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make build
+</code></pre></div></div>
+
+<h2 id="install">Install</h2>
+
+<p>With <code class="language-plaintext highlighter-rouge">~/go/bin</code> in your <code class="language-plaintext highlighter-rouge">PATH</code> simply use:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">go install github.com/dberstein/after@latest</code></li>
+</ul>
+
+<p>Or alternatively use make’s build infrastructure:</p>
+
+<ul>
+  <li>
+    <p>Builds binary <code class="language-plaintext highlighter-rouge">./build/&lt;OS&gt;-&lt;ARCH&gt;/after</code> and installs it as binary <code class="language-plaintext highlighter-rouge">/usr[/local]/bin/after</code>.</p>
+
+    <p>$ sudo make install</p>
+  </li>
+</ul>
+
+<h3 id="uninstall">Uninstall</h3>
+
+<p>Uninstalls binary of <code class="language-plaintext highlighter-rouge">make install</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo make uninstall
+</code></pre></div></div>
+
+<h3 id="debug">Debug</h3>
+
+<p>If environmental variable <code class="language-plaintext highlighter-rouge">DEBUG</code> has a non-empty and different from <code class="language-plaintext highlighter-rouge">0</code> value, debug information is sent to <code class="language-plaintext highlighter-rouge">stderr</code>.</p>
+
+<p>Information includes full command line being executed, the schedule of execution and each execution’s process (pid), timestamp and exit code.</p>
+
+<p>For example compare:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ after \*/20s date +%T
+07:59:45
+08:00:05
+08:00:25
+</code></pre></div></div>
+
+<p>With, where schedule of executions (0s, 20s, 40s) and each execution and its exit code are displayed in STDERR:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ DEBUG=1 after \*/20s date +%T
+#2023-04-01T07:59:45.884795+03:00 $ /bin/sh -c date +%T
+#map[0s:true 20s:true 40s:true]
+&gt;&gt;2023-04-01T07:59:45.886871+03:00|pid: 53094|cmd: /bin/sh -c date +%T
+07:59:45
+&lt;&lt;2023-04-01T07:59:45.895521+03:00|pid: 53094|code: 0
+&gt;&gt;2023-04-01T08:00:05.892511+03:00|pid: 53105|cmd: /bin/sh -c date +%T
+08:00:05
+&lt;&lt;2023-04-01T08:00:05.906056+03:00|pid: 53105|code: 0
+&gt;&gt;2023-04-01T08:00:25.891189+03:00|pid: 53124|cmd: /bin/sh -c date +%T
+08:00:25
+&lt;&lt;2023-04-01T08:00:25.905354+03:00|pid: 53124|code: 0
+</code></pre></div></div>
+
+<h2 id="examples">Examples</h2>
+
+<h3 id="fixed-seconds">Fixed seconds</h3>
+
+<p>Every 15m run and log twice “date” at seconds 20 and 45 of the minute:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*/15 * * * * after 20s,45S date &gt;&gt; date1.log
+</code></pre></div></div>
+
+<h3 id="repeating-seconds">Repeating seconds</h3>
+
+<p>Every 15m run and every 5 seconds and at second 33 with 500 milliseconds log “date”. Note that <code class="language-plaintext highlighter-rouge">*/...</code> as duration for <code class="language-plaintext highlighter-rouge">after</code> must be quoted or escaped:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*/15 * * * * after '*/5,33s500ms' date &gt;&gt; date2.log
+</code></pre></div></div>
+
+
+      
+      <div class="footer border-top border-gray-light mt-5 pt-3 text-right text-gray">
+        This site is open source. <a href="https://github.com/dberstein/after/edit/main/README.md">Improve this page</a>.
+      </div>
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
