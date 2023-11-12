@@ -15,11 +15,11 @@ func New(code int, message string) *Err {
 }
 
 func Convert(code int, error error) *Err {
-	return New(code, "ERROR: "+error.Error())
+	return New(code, error.Error())
 }
 
 func (e *Err) Error() string {
-	return e.message
+	return "ERROR: " + e.message
 }
 
 func (e *Err) Code() int {

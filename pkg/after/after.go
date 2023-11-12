@@ -2,10 +2,11 @@ package after
 
 import (
 	"fmt"
-	"github.com/dberstein/after/pkg/err"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/dberstein/after/pkg/err"
 )
 
 // RepeatPrefix is prefix for repeating durations

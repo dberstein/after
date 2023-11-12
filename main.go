@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"mvdan.cc/sh/v3/syntax"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"sync"
 	"time"
+
+	"mvdan.cc/sh/v3/syntax"
 
 	"github.com/dberstein/after/pkg/after"
 	"github.com/dberstein/after/pkg/err"
@@ -150,6 +152,10 @@ func executeDurations(durations map[time.Duration]bool, cmdArgs []string) {
 	}
 }
 
+func usage() string {
+	return fmt.Sprintf("Usage: %s (-v|--version|<DURATION> <COMMAND>)", path.Base(os.Args[0]))
+}
+
 func main() {
 	args := os.Args
 	if len(args) > 1 && (args[1] == "-v" || args[1] == "--version") {
@@ -159,10 +165,12 @@ func main() {
 
 	err := validateArgs(args)
 	if err != nil {
+		fmt.Println(usage())
 		err.Print().Exit()
 	}
 	durations, err := getDurations(args[1])
 	if err != nil {
+		fmt.Println(usage())
 		err.Print().Exit()
 	}
 	executeDurations(durations, args[2:])
