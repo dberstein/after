@@ -19,7 +19,7 @@ func Convert(code int, error error) *Err {
 }
 
 func (e *Err) Error() string {
-	return "ERROR: " + e.message
+	return e.message
 }
 
 func (e *Err) Code() int {
