@@ -17,7 +17,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: linux
         goarch: amd64
-        #project_path: "./cmd/after"
+        project_path: "./cmd/after"
         binary_name: "after"
-        build_command: go build -o after cmd/after
         extra_files: LICENSE README.md
