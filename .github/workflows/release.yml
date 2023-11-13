@@ -29,3 +29,4 @@ jobs:
         goarch: ${{ matrix.goarch }}
         binary_name: "after"
         extra_files: LICENSE README.md
+        ldflags: "-X main.Version=${{ vars.RELEASE_TAG}}-${{ vars.GITHUB_SHA }} -extldflags=-static"
