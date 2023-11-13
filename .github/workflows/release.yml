@@ -29,4 +29,4 @@ jobs:
         goarch: ${{ matrix.goarch }}
         binary_name: "after"
         extra_files: LICENSE README.md
-        ldflags: "-X main.Version=${{ github.ref }}-${{ github.sha }} -extldflags=-static"
+        ldflags: "-X main.Version=${{ github.ref_name }}-${{ github.sha }} -extldflags=-static"
