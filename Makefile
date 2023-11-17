@@ -1,5 +1,5 @@
 build_bin = after
-version := $(shell git describe --tags --dirty)
+version := $(shell git describe --tags --dirty)-$(shell git rev-parse HEAD)
 targets := $(shell go tool dist list -json | jq -r '.[]|select(.FirstClass==true)|"\(.GOOS)/\(.GOARCH)"')
 runtime := $(shell go env GOHOSTOS)/$(shell go env GOHOSTARCH)
 
